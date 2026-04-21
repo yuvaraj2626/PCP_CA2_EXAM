@@ -28,19 +28,36 @@ export const ActivityProvider = ({ children }) => {
       try {
         dispatch({ type: "SET_LOADING", payload: true });
         
+        // Get credentials from environment or use default
+        const studentId = import.meta.env.VITE_STUDENT_ID || localStorage.getItem("studentId") || "E0223011";
+        const password = import.meta.env.VITE_PASSWORD || localStorage.getItem("password") || "311850";
+        
+        console.log("Using credentials:", { studentId, password: "***" });
+        
         // Step 1: Get Token
-        const tokenRes = await getToken("20084016", "311850", "activities");
+        console.log("Getting token...");
+        const tokenRes = await getToken(studentId, password, "setB");
+        console.log("Token response:", tokenRes);
+        
+        // Check if token response is valid
+        if (!tokenRes.token || !tokenRes.dataUrl) {
+          throw new Error(`Invalid token response: ${JSON.stringify(tokenRes)}`);
+        }
 
         // Step 2: Fetch dataset
+        console.log("Fetching dataset from:", tokenRes.dataUrl);
         const rawData = await getDataset(tokenRes.token, tokenRes.dataUrl);
+        console.log("Raw data received:", rawData);
 
         // Step 3: Clean and validate data
         const cleanedActivities = cleanDataset(rawData);
+        console.log("Cleaned activities:", cleanedActivities);
 
         dispatch({ type: "SET_ACTIVITIES", payload: cleanedActivities });
       } catch (err) {
-        console.error("Error fetching activities:", err.message);
-        dispatch({ type: "SET_ERROR", payload: err.message });
+        console.error("Error fetching activities:", err);
+        const errorMsg = err.response?.data?.message || err.message || "Failed to fetch activities";
+        dispatch({ type: "SET_ERROR", payload: errorMsg });
       }
     };
 

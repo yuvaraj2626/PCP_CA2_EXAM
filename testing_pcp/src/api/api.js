@@ -3,23 +3,35 @@ import axios from "axios";
 const BASE_URL = "https://t4e-testserver.onrender.com/api";
 
 export const getToken = async (studentId, password, set) => {
-  const { data } = await axios.post(`${BASE_URL}/public/token`, {
-    studentId,
-    password,
-    set,
-  });
-
-  return data;
+  try {
+    const { data } = await axios.post(`${BASE_URL}/public/token`, {
+      studentId,
+      password,
+      set,
+    });
+    console.log("Token Response:", data);
+    return data;
+  } catch (error) {
+    console.error("Token Error:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const getDataset = async (token, dataUrl) => {
-  const { data } = await axios.get(`${BASE_URL}${dataUrl}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return data.data;
+  try {
+    console.log("Fetching from:", `${BASE_URL}${dataUrl}`);
+    console.log("Token:", token);
+    
+    const { data } = await axios.get(`${BASE_URL}${dataUrl}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data.data;
+  } catch (error) {
+    console.error("Dataset Error:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const validateActivity = (activity) => {
@@ -35,12 +47,10 @@ export const validateActivity = (activity) => {
     date: activity.date?.toString().trim() || new Date().toISOString(),
   };
   
-
   if (!cleaned.activityid || !cleaned.name) return null;
   
   return cleaned;
 };
-
 
 export const cleanDataset = (activities) => {
   if (!Array.isArray(activities)) return [];
