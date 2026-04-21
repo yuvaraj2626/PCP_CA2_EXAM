@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_STUDENT_ID": "@vite_student_id",
+    "VITE_PASSWORD": "@vite_password"
+  },
+  "rewrites": [
+    {
+      "source": "/((?!assets|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+
